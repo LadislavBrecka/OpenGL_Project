@@ -6,6 +6,10 @@
 #include <fstream>
 #include <sstream>
 
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "VertexArray.h"
+
 struct ShaderProgramSource {
     std::string VertexSource;
     std::string FragmentSource;
@@ -123,34 +127,26 @@ int main(void)
         2, 3, 0
     };
 
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    VertexArray va;
+    VertexBuffer vb(vertices, 4 * 2 * sizeof(float));
+
+    VertexBufferLayout layout;
+    layout.Push<float>(2, false);
+    va.AddBuffer(vb, layout);
+
+    IndexBuffer ib(indices, 6 * sizeof(unsigned int));
     
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-
-    unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-
     ShaderProgramSource source = parseShader("res/Basic.shader");
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    va.Unbind();
+    vb.Unbind();
+    ib.Unbind();
     glUseProgram(0);
     
     unsigned int colorUniform = glGetUniformLocation(shader, "u_Color");
-    glUniform4f(colorUniform, 0.2, 0.0, 0.5, 1.0);
+    glUniform4f(colorUniform, 0.2f, 0.0f, 0.5f, 1.0f);
 
     float c = 0.0f;
     float step = 0.05f;
@@ -163,14 +159,14 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUniform4f(colorUniform, 0.2, 0.0, c, 1.0);
+        glUniform4f(colorUniform, 0.2f, 0.0f, c, 1.0f);
         if (c > 1.0f)                 step = -0.05f;
         else if (c < 0.0f)            step =  0.05f;
         c += step;
         
         /* Drawing first triangle*/
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        va.Bind();
+        ib.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         /* Swap front and back buffers */
