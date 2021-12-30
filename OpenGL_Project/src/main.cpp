@@ -103,12 +103,13 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-
     glfwSwapInterval(1);
 
     /* Initializing GLEW, make sure to insert GLEW_STATIC in preprocessor settings*/
     if (glewInit() != GLEW_OK)
         return -1;
+
+    std::cout << "Version of OpenGL: " << glGetString(GL_VERSION) << std::endl;
 
     float vertices[] = {
         -0.5f, -0.5f,
@@ -146,8 +147,8 @@ int main(void)
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glUseProgram(0);
     
-    glBindVertexArray(vao);
     unsigned int colorUniform = glGetUniformLocation(shader, "u_Color");
     glUniform4f(colorUniform, 0.2, 0.0, 0.5, 1.0);
 
@@ -157,19 +158,19 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        glUseProgram(shader);
+
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUniform4f(colorUniform, 0.2, 0.0, c, 1.0);
-
-        if (c > 1.0f)
-            step = -0.05f;
-        else if (c < 0.0f)
-            step = 0.05f;
-
+        if (c > 1.0f)                 step = -0.05f;
+        else if (c < 0.0f)            step =  0.05f;
         c += step;
         
         /* Drawing first triangle*/
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         /* Swap front and back buffers */
