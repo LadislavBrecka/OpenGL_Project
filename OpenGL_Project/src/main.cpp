@@ -104,6 +104,8 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    glfwSwapInterval(1);
+
     /* Initializing GLEW, make sure to insert GLEW_STATIC in preprocessor settings*/
     if (glewInit() != GLEW_OK)
         return -1;
