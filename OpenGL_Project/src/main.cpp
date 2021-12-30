@@ -90,6 +90,10 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     /* Create a windowed mode window and its OpenGL context */
     GLFWwindow* window = glfwCreateWindow(640, 400, "OPENGL COURSE", NULL, NULL);
     if (!window)
@@ -116,6 +120,10 @@ int main(void)
         2, 3, 0
     };
 
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -133,11 +141,31 @@ int main(void)
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+    glBindVertexArray(vao);
+    unsigned int colorUniform = glGetUniformLocation(shader, "u_Color");
+    glUniform4f(colorUniform, 0.2, 0.0, 0.5, 1.0);
+
+    float c = 0.0f;
+    float step = 0.05f;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUniform4f(colorUniform, 0.2, 0.0, c, 1.0);
+
+        if (c > 1.0f)
+            step = -0.05f;
+        else if (c < 0.0f)
+            step = 0.05f;
+
+        c += step;
         
         /* Drawing first triangle*/
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
