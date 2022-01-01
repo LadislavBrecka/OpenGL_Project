@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 
+#include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
@@ -70,13 +71,15 @@ int main(void)
     float c = 0.0f;
     float step = 0.05f;
 
+    Renderer renderer;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         shader.Bind();
 
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.Clear();
 
         shader.SetUniform4f("u_Color", 0.2f, 0.0f, sin(c), 1.0f);
 
@@ -85,9 +88,7 @@ int main(void)
         c += step;
         
         /* Drawing first triangle*/
-        va.Bind();
-        ib.Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        renderer.Draw(va, ib);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

@@ -1,5 +1,6 @@
 #include "VertexArray.h"
-#include <GL/glew.h>
+
+#include "Renderer.h"
 
 #include <vector>
 
